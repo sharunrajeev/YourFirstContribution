@@ -1,4 +1,5 @@
-# Client side
+# Client Program
+
 import socket
 def calcRedundantBits(m):
 	for i in range(m):
@@ -9,7 +10,7 @@ def posRedundantBits(data, r):
 	j = 0
 	k = 1
 	m = len(data)
-	res = ''
+	res =""
 
 	for i in range(1, m + r+1):
 		if(i == 2**j):
@@ -19,6 +20,7 @@ def posRedundantBits(data, r):
 			res = res + data[-1 * k]
 			k += 1
 	return res[::-1]
+	
 def calcParityBits(arr, r):
 	n = len(arr)
 	for i in range(r):
@@ -44,3 +46,14 @@ print ("Without disturbance\nMessage from server:",s.recv(1024).decode())
 print ("With disturbance\nMessage from server:",s.recv(1024).decode())
 
 s.close()
+
+"""
+Output
+Enter the data you want to send: hello
+11010001100101110110011011001101111
+Data transferred: 11010001110010111011001100110011001111110
+Without disturbance
+Message from server: Data received : 11010001110010111011001100110011001111110 ; No errorData received : 11010001110010111011001100110011001111110 ; No error
+With disturbance
+Message from server: Data received : 11010101110010111011001100110011001111110 ; Error found at position 6 ; Corrected data is 11010001110010111011001100110011001111110
+"""

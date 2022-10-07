@@ -1,10 +1,11 @@
+# Server code 
+
 import socket
 import random
 def calRedundantBits(m):
 	for i in range(m):
 		if(2**i >= m):
-	return i
-
+			return i
 def detectError(arr, nr):
 	n = len(arr)
 	res = 0
@@ -18,11 +19,10 @@ def detectError(arr, nr):
 		return (int(str(res),2))
 	else:
 		return (n-int(str(res), 2)+1)
-
 s=socket.socket()
 port=12345
 s.bind(('127.0.0.1',port))
-print (f"Connected to port {port}")
+print(f"Connected to port {port}")
 s.listen(5)
 
 while True:
@@ -36,15 +36,15 @@ while True:
 	if (correction==0):
 		msg=f"Data received : {data} ; No error"
 		k.send(msg.encode())
+
 	else:
 		data1=''
 		if (data[correction-1]=='0'):
 			data1=data[:correction-1]+"1"+data[correction:]
 		else:
 			data1=data[:correction-1]+"0"+data[correction:]
-		msg=f"Data received is {data} ; Error found at position {correction} ; Corrected data is
-		{data1}"
-		k.send(msg.encode())
+		msg=f"Data received is {data} ; Error found at position {correction} ; Corrected data is {data1}"
+	k.send(msg.encode())
 	rand=random.randint(1,m)
 	ndata=''
 	if (data[rand-1]=='0'):
@@ -62,5 +62,5 @@ while True:
 			data1=ndata[:correction-1]+"1"+ndata[correction:]
 		else:
 			data1=ndata[:correction-1]+"0"+ndata[correction:]
-	msg=f"Data received : {ndata} ; Error found at position {correction} ; Corrected data is {data1}"
+		msg=f"Data received : {ndata} ; Error found at position {correction} ; Corrected data is {data1}"
 	k.send(msg.encode())
