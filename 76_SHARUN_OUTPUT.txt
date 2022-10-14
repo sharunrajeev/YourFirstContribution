@@ -1,0 +1,820 @@
+'''
+SHARUN E RAJEEV 
+20219078
+TCP Client
+'''
+
+import socket
+
+sock = socket.socket()
+port = 6789
+sock.connect(('127.0.0.1',port))
+print(sock.recv(1024).decode())
+sock.close()
+
+'''
+OUTPUT:
+Thank you for connecting
+'''
+
+
+
+'''
+SHARUN E RAJEEV 
+20219078
+TCP SERVER
+'''
+
+import socket
+
+sock = socket.socket()
+print("Socket successfully created.")
+port = 6789
+sock.bind(('',port))
+print(f"Socket binded to port {port}")
+sock.listen(5)
+print("Socket is listening")
+while True:
+	client, addr = sock.accept()
+	print(f"Got connection from {addr}")
+	client.send("Thank you for connecting".encode())
+	client.close()
+	break
+
+
+'''
+OUTPUT:
+Socket successfully created.
+Socket binded to port 6789
+Socket is listening
+Got connection from ('127.0.0.1', 35778)
+'''
+
+
+
+'''
+SHARUN E RAJEEV 
+20219078
+UDP Client
+'''
+
+import time
+import socket
+
+for pings in range(10):
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    client_socket.settimeout(1.0)
+    message = b'hello'
+    addr = ("127.0.0.1", 12000)
+    start = time.time()
+    client_socket.sendto(message, addr)
+    try:
+        data, server = client_socket.recvfrom(1024)
+        end = time.time()
+        elapsed = end - start
+        print(f'{data} {pings} {elapsed}')
+    except socket.timeout:
+        print('REQUEST TIMED OUT')
+
+'''
+OUPUT:
+b'HELLO' 1 0.00024199485778808594
+b'HELLO' 2 0.0001862049102783203
+b'HELLO' 5 0.00023221969604492188
+b'HELLO' 7 0.00024199485778808594
+b'HELLO' 8 0.0002238750457763672
+b'HELLO' 9 0.0002162456512451172
+'''
+
+
+
+'''
+SHARUN E RAJEEV 
+20219078
+UDP Server
+'''
+
+import random
+import socket
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+server_socket.bind(('', 12000))
+print("Socket set up and running.");
+while True:
+    rand = random.randint(0, 10)
+    message, address = server_socket.recvfrom(1024)
+    message = message.decode().upper()
+    if rand >= 4:
+        server_socket.sendto(message.encode(), address)
+
+'''
+OUPUT:
+Socket set up and running.
+'''
+
+
+
+'''
+SHARUN E RAJEEV 
+20219078
+Single Chat Client
+'''
+
+import  socket,  threading
+
+sock = socket.socket()
+host = socket.gethostname()
+host_ip = socket.gethostbyname(host)
+port = 8000
+sock.connect(('127.0.0.1', port))
+print("Successfully binded.")
+print(f"Your ip: {host_ip}")
+name = input("Name: ")
+sock.send(name.encode())
+client_name = sock.recv(1024).decode()
+print(f"{client_name} connected!")
+
+def listenMessage():
+	while True:
+		message = sock.recv(1024).decode()
+		print(f"\n{message}")
+		if(message == "quit"):
+			sock.close()
+
+def sendMessage():
+	while True:
+		message = input(f"\n")
+		sock.send(message.encode())
+		if(message == "quit"):
+			sock.close()
+
+
+thread1 = threading.Thread(target=listenMessage)
+thread1.start()
+
+thread2 = threading.Thread(target=sendMessage)
+thread2.start()
+
+'''
+OUPUT:
+Successfully binded.
+Your ip: 127.0.1.1
+Name: Rahul
+Sharun connected!
+
+Hello
+
+
+Hi
+'''
+
+
+
+'''
+SHARUN E RAJEEV
+20219008
+Single Chat Server
+'''
+
+import socket, threading
+import sys
+import time
+
+sock = socket.socket()
+host = socket.gethostname()
+host_ip = socket.gethostbyname(host)
+port = 8000
+sock.bind(('',port))
+
+print("Successfully binded")
+print(f"You are: {host_ip}")
+
+name = input("Enter your name: ")
+sock.listen(1)
+
+client, addr = sock.accept()
+print(f"Connection established with {addr}")
+
+client_name = client.recv(1024).decode()
+print(f"{client_name} has connected.")
+client.send(name.encode())
+
+def listenMessage():
+	while True:
+		message = client.recv(1024).decode()
+		print(f"{message}")
+		if(message == "quit"):
+			client.close()
+
+def sendMessage():
+	while True:
+		message = input(f"")
+		client.send(message.encode())
+		if(message == "quit"):
+			client.close()
+
+
+thread1 = threading.Thread(target=listenMessage)
+thread1.start()
+
+thread2 = threading.Thread(target=sendMessage)
+thread2.start()
+
+'''
+OUPUT:
+Successfully binded
+You are: 127.0.1.1
+Enter your name: Sharun
+Connection established with ('127.0.0.1', 42554)
+Rahul has connected.
+Hello
+Hi
+'''
+
+
+
+'''
+SHARUN E RAJEEV
+20219008
+Multi Chat Client
+'''
+
+import socket, select, string, sys
+
+#Helper function (formatting)
+def display() :
+	you="\33[33m\33[1m"+" You: "+"\33[0m"
+	sys.stdout.write(you)
+	sys.stdout.flush()
+
+def main():
+
+    if len(sys.argv)<2:
+        host = input("Enter host ip address: ")
+    else:
+        host = sys.argv[1]
+
+    port = 5050
+    
+    #asks for user name
+    name=input("\33[34m\33[1m CREATING NEW ID:\n Enter username: \33[0m")
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.settimeout(2)
+    
+    # connecting host
+    try :
+        s.connect((host, port))
+    except :
+        print("\33[31m\33[1m Can't connect to the server \33[0m")
+        sys.exit()
+
+    #if connected
+    s.send(name.encode())
+    display()
+    while 1:
+        socket_list = [sys.stdin, s]
+        
+        # Get the list of sockets which are readable
+        rList, wList, error_list = select.select(socket_list , [], [])
+        
+        for sock in rList:
+            #incoming message from server
+            if sock == s:
+                data = sock.recv(4096)
+                if not data :
+                    print ('\33[31m\33[1m \rDISCONNECTED!!\n \33[0m')
+                    sys.exit()
+                else :
+                    sys.stdout.write(data.decode())
+                    display()
+        
+            #user entered a message
+            else :
+                msg=sys.stdin.readline()
+                s.send(msg.encode())
+                display()
+
+if __name__ == "__main__":
+    main()
+'''
+
+OUTPUT Client 1:
+Enter host ip address: 192.168.10.104
+ CREATING NEW ID:
+ Enter username: Sharun
+ You: Welcome to this chatroom!
+ Rohith: Hello
+ You: Hi
+
+OUTPUT Client 2: 
+Enter host ip address: 192.168.10.104
+ CREATING NEW ID:
+ Enter username: Rohith
+ You: Welcome to this chatroom! 
+ You: Hello
+ Sharun: Hi
+
+'''
+
+
+
+
+
+'''
+SHARUN E RAJEEV
+20219008
+Multi Chat Server
+'''
+
+
+import socket, select
+
+#Function to send message to all connected clients
+def send_to_all (sock, message):
+	#Message not forwarded to server and sender itself
+	for socket in connected_list:
+		if socket != server_socket and socket != sock :
+			try :
+				socket.send(message)
+			except :
+				# if connection not available
+				socket.close()
+				connected_list.remove(socket)
+
+if __name__ == "__main__":
+	name=""
+	#dictionary to store address corresponding to username
+	record={}
+	# List to keep track of socket descriptors
+	connected_list = []
+	buffer = 4096
+	port = 5001
+
+	server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+	server_socket.bind(("localhost", port))
+	server_socket.listen(10) #listen atmost 10 connection at one time
+
+	# Add server socket to the list of readable connections
+	connected_list.append(server_socket)
+
+	print("\33[32m \t\t\t\tSERVER WORKING \33[0m")
+
+	while 1:
+        # Get the list sockets which are ready to be read through select
+		rList,wList,error_sockets = select.select(connected_list,[],[])
+
+		for sock in rList:
+			#New connection
+			if sock == server_socket:
+				# Handle the case in which there is a new connection recieved through server_socket
+				sockfd, addr = server_socket.accept()
+				name=sockfd.recv(buffer)
+				connected_list.append(sockfd)
+				record[addr]=""
+				#print "record and conn list ",record,connected_list
+                
+                #if repeated username
+				if name in record.values():
+					sockfd.send("\r\33[31m\33[1m Username already taken!\n\33[0m")
+					del record[addr]
+					connected_list.remove(sockfd)
+					sockfd.close()
+					continue
+				else:
+                    #add name and address
+					record[addr]=name
+					print("Client (%s, %s) connected" % addr," [",record[addr],"]")
+					sockfd.send("\33[32m\r\33[1m Welcome to chat room. Enter 'tata' anytime to exit\n\33[0m")
+					send_to_all(sockfd, "\33[32m\33[1m\r "+name+" joined the conversation \n\33[0m")
+
+			#Some incoming message from a client
+			else:
+				# Data from client
+				try:
+					data1 = sock.recv(buffer)
+					#print "sock is: ",sock
+					data=data1[:data1.index("\n")]
+					#print "\ndata received: ",data
+                    
+                    #get addr of client sending the message
+					i,p=sock.getpeername()
+					if data == "tata":
+						msg="\r\33[1m"+"\33[31m "+record[(i,p)]+" left the conversation \33[0m\n"
+						send_to_all(sock,msg)
+						print("Client (%s, %s) is offline" % (i,p)," [",record[(i,p)],"]")
+						del record[(i,p)]
+						connected_list.remove(sock)
+						sock.close()
+						continue
+
+					else:
+						msg="\r\33[1m"+"\33[35m "+record[(i,p)]+": "+"\33[0m"+data+"\n"
+						send_to_all(sock,msg)
+            
+                #abrupt user exit
+				except:
+					(i,p)=sock.getpeername()
+					send_to_all(sock, "\r\33[31m \33[1m"+record[(i,p)]+" left the conversation unexpectedly\33[0m\n")
+					print ("Client (%s, %s) is offline (error)" % (i,p)," [",record[(i,p)],"]\n")
+					del record[(i,p)]
+					connected_list.remove(sock)
+					sock.close()
+					continue
+
+	server_socket.close()
+
+'''
+OUTPUT Server
+
+Sharun Connected
+Rohith Connected
+
+Sharun: Hello
+Rohith: Hi
+'''
+
+
+
+
+'''
+SHARUN E RAJEEV
+20219008
+CRC Client
+'''
+
+import socket		
+
+def xor(a, b):
+	result = []
+
+	for i in range(1, len(b)):
+		if a[i] == b[i]:
+			result.append('0')
+		else:
+			result.append('1')
+
+	return ''.join(result)
+
+
+def mod2div(divident, divisor):
+	pick = len(divisor)
+	tmp = divident[0 : pick]
+
+	while pick < len(divident):
+
+		if tmp[0] == '1':
+			tmp = xor(divisor, tmp) + divident[pick]
+
+		else:
+			tmp = xor('0'*pick, tmp) + divident[pick]
+
+		pick += 1
+
+	if tmp[0] == '1':
+		tmp = xor(divisor, tmp)
+	else:
+		tmp = xor('0'*pick, tmp)
+
+	checkword = tmp
+	return checkword
+
+def encodeData(data, key):
+	l_key = len(key)
+
+	appended_data = data + '0'*(l_key-1)
+	remainder = mod2div(appended_data, key)
+
+	codeword = data + remainder
+	return codeword
+	
+s = socket.socket()	
+port = 12345		
+s.connect(('127.0.0.1', port))
+
+input_string = input("Enter data you want to send->")
+
+data =(''.join(format(ord(x), 'b') for x in input_string))
+print("Entered data in binary format :",data)
+key = "1001"
+
+ans = encodeData(data,key)
+print("Encoded data to be sent to server in binary format :",ans)
+s.sendto(ans.encode(),('127.0.0.1', 12345))
+
+print("Received feedback from server :",s.recv(1024).decode())
+
+s.close()
+
+'''
+OUTPUT:
+
+Enter data you want to send->Hello there
+Entered data in binary format : 1001000110010111011001101100110111110000011101001101000110010111100101100101
+Encoded data to be sent to server in binary format : 1001000110010111011001101100110111110000011101001101000110010111100101100101110
+Received feedback from server : THANK you Data ->1001000110010111011001101100110111110000011101001101000110010111100101100101110 Received No error FOUND
+'''
+
+
+
+'''
+SHARUN E RAJEEV
+20219008
+CRC Server
+'''
+
+import socket
+
+def xor(a, b):
+	result = []
+
+	for i in range(1, len(b)):
+		if a[i] == b[i]:
+			result.append('0')
+		else:
+			result.append('1')
+
+	return ''.join(result)
+
+
+def mod2div(divident, divisor):
+	pick = len(divisor)
+	tmp = divident[0: pick]
+
+	while pick < len(divident):
+
+		if tmp[0] == '1':
+
+			tmp = xor(divisor, tmp) + divident[pick]
+
+		else: 
+			tmp = xor('0'*pick, tmp) + divident[pick]
+
+		pick += 1
+
+	if tmp[0] == '1':
+		tmp = xor(divisor, tmp)
+	else:
+		tmp = xor('0'*pick, tmp)
+
+	checkword = tmp
+	return checkword
+
+
+def decodeData(data, key):
+
+	l_key = len(key)
+
+	appended_data = data.decode() + '0'*(l_key-1)
+	remainder = mod2div(appended_data, key)
+
+	return remainder
+
+s = socket.socket()
+print("Socket successfully created")
+
+port = 12345
+
+s.bind(('', port))
+print("socket binded to %s" % (port))
+s.listen(5)
+print("socket is listening")
+
+while True:
+	c, addr = s.accept()
+	print('Got connection from', addr)
+
+	data = c.recv(1024)
+
+	print("Received encoded data in binary format :", data.decode())
+
+	if not data:
+		break
+
+	key = "1001"
+
+	ans = decodeData(data, key)
+	print("Remainder after decoding is->"+ans)
+
+	temp = "0" * (len(key) - 1)
+	if ans == temp:
+		c.sendto(("THANK you Data ->"+data.decode() +
+				" Received No error FOUND").encode(), ('127.0.0.1', 12345))
+	else:
+		c.sendto(("Error in data").encode(), ('127.0.0.1', 12345))
+
+	c.close()
+
+'''
+OUTPUT:
+
+Socket successfully created
+socket binded to 12345
+socket is listening
+Got connection from ('127.0.0.1', 53080)
+Received encoded data in binary format : 1001000110010111011001101100110111110000011101001101000110010111100101100101110
+Remainder after decoding is->000
+'''
+
+
+
+'''
+SHARUN E RAJEEV
+20219008
+Hamming Code Client
+'''
+
+import socket
+
+s = socket.socket()	
+PORT = 5000		
+s.connect(("127.0.0.1", PORT))
+
+def calculate_redundant_bit(length):
+	for i in range(length):
+		if 2**i >= length + i + 1:
+			return i
+
+def position_of_redundant_bit(binary_string, no_of_redundant_bits):
+	j = 0
+	k = 1
+	size_of_binary_string = len(binary_string)
+	res = ''
+	for i in range(1, size_of_binary_string + no_of_redundant_bits + 1):
+		if i == 2**j:
+			res += "0"
+			j += 1
+		else:
+			res += binary_string[-1 * k]
+			k += 1
+	return res[::-1]
+
+def calculate_parity_bit(binary_string, no_of_redundant_bits):
+	n = len(binary_string)
+	for i in range(no_of_redundant_bits):
+		val = 0
+		for j in range(1, n + 1):
+			if j & (2**i) == (2**i):
+				val = val ^ int(binary_string[-1 * j])
+		binary_string = binary_string[:n-(2**i)] + str(val) + binary_string[n-(2**i)+1:]
+	return binary_string
+
+def main():
+	input_string = input("Enter data you want to send: ")
+	binary_input_string = ''.join(format(ord(x), 'b') for x in input_string)
+	no_of_redundant_bits = calculate_redundant_bit(len(binary_input_string))
+
+	arr = position_of_redundant_bit(binary_input_string, no_of_redundant_bits)
+	print(arr)
+	arr = calculate_parity_bit(arr, no_of_redundant_bits)
+	print(arr)
+	print("Data transferred is " + arr)
+
+	s.sendto(f"{arr};{no_of_redundant_bits}".encode(),('127.0.0.1', 8000))
+	
+	message = s.recv(2048)
+
+	print(message.decode())
+	s.close()
+
+main()
+	
+
+'''
+OUTPUT:
+
+Enter data you want to send: Hello there
+10010001100101110110001101100110111110000011101001100100011001011110001011000100100
+10010001100101110110001101100110111110000011101001110100011001011110001011000100100
+Data transferred is 10010001100101110110001101100110111110000011101001110100011001011110001011000100100
+There is no error in the received message.
+
+'''
+
+
+
+'''
+SHARUN E RAJEEV
+20219008
+Hamming Code Server
+'''
+
+import socket
+
+s = socket.socket()
+PORT = 5000
+s.bind(("", PORT))
+s.listen(1)
+ 
+def detectError(arr, nr):
+	n = len(arr)
+	res = 0
+	for i in range(nr):
+		val = 0
+		for j in range(1, n + 1):
+			if(j & (2**i) == (2**i)):
+				val = val ^ int(arr[-1 * j])
+		res = res + val*(10**i)
+	return int(str(res), 2)
+
+while True:
+	c, addr = s.accept()
+	print('Got connection from', addr)
+
+	data = c.recv(1024).decode()
+
+	if not data:
+		break
+	print(f"data: {data}")
+
+	data = data.split(";")
+	correction = detectError(data[0], int(data[1]))
+
+	print("Received encoded data in binary format :", data[0])
+	print(f"Redundant bits: {data[1]}")
+	print(f"Correction: {correction}")
+
+	if correction == 0:
+		c.sendto("There is no error in the received message.".encode(), ('127.0.0.1', 12345))
+	else:
+		c.sendto(f"The position of error is {len(data[0])-correction+1} from the left".encode(), ('127.0.0.1', 12345))
+	c.close()
+
+'''
+OUTPUT:
+
+Got connection from ('127.0.0.1', 46716)
+data: 10010001100101110110001101100110111110000011101001110100011001011110001011000100100;7
+Received encoded data in binary format : 10010001100101110110001101100110111110000011101001110100011001011110001011000100100
+Redundant bits: 7
+Correction: 0
+
+'''
+
+
+
+'''
+SHARUN E RAJEEV
+20219008
+LZW Compression and Decompression
+'''
+
+def compressor(data):
+	tableSize = 256
+	table = {chr(i): i for i in range(tableSize)}
+
+	p = ""
+	result = []
+	
+	for c in data:
+		d = p + c
+		if d in table:
+			p = d
+		else:
+			result.append(table[p])
+			table[d] = tableSize
+			tableSize += 1
+			p = c
+	if p:
+		result.append(table[p])
+	return result
+
+def decompression(compressed):
+	tableSize = 256
+	string = ""
+	result = ""
+	table = {i: chr(i) for i in range(tableSize)}
+	for code in compressed:
+		if not (code in table):
+			table[code] = string + (string[0])
+		result += table[code]
+		if not(len(string) == 0):
+			table[tableSize] = string + (table[code][0])
+			tableSize += 1
+		string = table[code]
+	return result
+			
+
+def main():
+	string = input("Enter a string: ")
+	compressed = compressor(string)	
+	print("Compressed data: ", compressed)
+	print("Decompressed data: ", decompression(compressed))
+
+main()	
+
+'''
+
+OUTPUT 1:
+
+Enter a string: This is a cipher text
+Compressed data: [84, 104, 105, 115, 32, 258, 32, 97, 32, 99, 105, 112, 104, 101, 114, 32, 116, 101, 120, 116]
+Decompressed data: This is a cipher text
+
+OUTPUT 2:
+
+Enter a string: Hello
+Compressed data: [72, 101, 108, 108, 111]
+Decompressed data: Hello
+
+'''
+				
