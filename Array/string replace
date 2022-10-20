@@ -1,0 +1,2 @@
+str = input("Enter the ip address:")
+fang = str.replace(".", "[.]")
