@@ -1,0 +1,6 @@
+num = input("Enter number:")
+sum = 0
+for char in num:
+    sum += int(char)
+
+print(sum)
