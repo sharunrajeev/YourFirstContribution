@@ -1,0 +1,11 @@
+from tempfile import tempdir
+
+
+data = input("Enter required number:")
+tempo = data
+data = data[::-1]
+print("Reversed number:", data)
+if (data == tempo):
+    print("Number is palindrome")
+else:
+    print("Number is not palindrome!")
